@@ -47,6 +47,8 @@ class Client(object):
         self.learning_rate = args.local_learning_rate
         self.local_epochs = args.local_epochs
 
+        self.level_processing = 1.0
+
         # check BatchNorm
         self.has_BatchNorm = False
         for layer in self.model.children():

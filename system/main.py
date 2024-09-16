@@ -495,8 +495,8 @@ if __name__ == "__main__":
     parser.add_argument('-mo', "--momentum", type=float, default=0.1)
     parser.add_argument('-klw', "--kl_weight", type=float, default=0.0)
 
-    # Low processing 
-    parser.add_argument('-lp', "--low_processing", type=bool, default=False)
+    '''# Low processing 
+    parser.add_argument('-lp', "--low_processing", type=bool, default=False)'''
 
     # client with low processing rate
     parser.add_argument('-lpr', "--low_processing_rate", type=float, default=0.5)

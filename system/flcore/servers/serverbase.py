@@ -146,8 +146,13 @@ class Server(object):
             try:
                 client_time_cost = client.train_time_cost['total_cost'] / client.train_time_cost['num_rounds'] + \
                         client.send_time_cost['total_cost'] / client.send_time_cost['num_rounds']
+
+                # insere "atraso" ao cliente de baixo processamento 
                 client_time_cost = client_time_cost / client.level_processing
+
+                # armazena os valores de custo temporal
                 cost_times.append(client_time_cost)
+
                 # exibe o custo de cada cliente 
                 print(f'client {client.id}: {client_time_cost}s')
         
