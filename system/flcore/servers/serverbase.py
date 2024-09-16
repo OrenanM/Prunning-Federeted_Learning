@@ -138,11 +138,20 @@ class Server(object):
         self.uploaded_models = []
         tot_samples = 0
         for client in active_clients:
+            cost_times = [] # lista de custo temporal
             try:
                 client_time_cost = client.train_time_cost['total_cost'] / client.train_time_cost['num_rounds'] + \
                         client.send_time_cost['total_cost'] / client.send_time_cost['num_rounds']
+                cost_times.append(client_time_cost)
+        
             except ZeroDivisionError:
                 client_time_cost = 0
+
+            cost_times.sort()
+            # utiliza o custo temporal do client mais para o threthold
+            if self.time_threthold == self.args.time_threthold:
+                self.time_threthold = cost_times[0].item() * 1.2
+            
             if client_time_cost <= self.time_threthold:
                 tot_samples += client.train_samples
                 self.uploaded_ids.append(client.id)
