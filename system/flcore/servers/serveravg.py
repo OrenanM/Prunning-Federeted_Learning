@@ -19,6 +19,7 @@ import time
 from flcore.clients.clientavg import clientAVG
 from flcore.servers.serverbase import Server
 from threading import Thread
+import numpy as np
 
 
 class FedAvg(Server):
@@ -28,6 +29,7 @@ class FedAvg(Server):
         # select slow clients
         self.set_slow_clients()
         self.set_clients(clientAVG)
+        self.set_processing_clients()
 
         print(f"\nJoin ratio / total clients: {self.join_ratio} / {self.num_clients}")
         print("Finished creating server and clients.")
