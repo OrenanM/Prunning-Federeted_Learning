@@ -139,18 +139,22 @@ class Server(object):
         tot_samples = 0
         for client in active_clients:
             cost_times = [] # lista de custo temporal
+            print('==== time cost ====')
             try:
                 client_time_cost = client.train_time_cost['total_cost'] / client.train_time_cost['num_rounds'] + \
                         client.send_time_cost['total_cost'] / client.send_time_cost['num_rounds']
                 cost_times.append(client_time_cost)
+                # exibe o custo de cada cliente 
+                print(f'client {client.id}: {client_time_cost}s')
         
             except ZeroDivisionError:
                 client_time_cost = 0
+            print('==== ==== ==== ====')
 
             cost_times.sort()
             # utiliza o custo temporal do client mais para o threthold
             if self.time_threthold == self.args.time_threthold:
-                self.time_threthold = cost_times[0].item() * 1.2
+                self.time_threthold = cost_times[0] * 1.2
             
             if client_time_cost <= self.time_threthold:
                 tot_samples += client.train_samples
@@ -162,6 +166,8 @@ class Server(object):
 
     def aggregate_parameters(self):
         assert (len(self.uploaded_models) > 0)
+
+        print(f'aggregate clients: {len(self.uploaded_models)}')
 
         self.global_model = copy.deepcopy(self.uploaded_models[0])
         for param in self.global_model.parameters():
