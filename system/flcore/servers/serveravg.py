@@ -35,6 +35,21 @@ class FedAvg(Server):
         # self.load_model()
         self.Budget = []
 
+    def set_processing_clients(self):
+        '''
+        define valores de nivel de processament
+        '''
+        n_clients = len(self.clients)
+        n_clients_low_processing = round(n_clients * self.low_processing_rate)
+
+        indexes = list(range(n_clients))
+        indexes_low = np.random.choic(indexes, n_clients_low_processing)
+
+        for index in indexes_low:
+            client = self.clients[index]
+            client.level_processing = 0.8
+            print(f'low processing: {client.id}')
+
 
     def train(self):
         for i in range(self.global_rounds+1):

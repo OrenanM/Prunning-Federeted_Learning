@@ -79,6 +79,9 @@ class Server(object):
         self.eval_new_clients = False
         self.fine_tuning_epoch_new = args.fine_tuning_epoch_new
 
+        self.low_processing = args.low_processing # defines client with low processing
+        self.low_processing_rate = args.low_processing_rate # defines client with low processing rate
+
     def set_clients(self, clientObj):
         for i, train_slow, send_slow in zip(range(self.num_clients), self.train_slow_clients, self.send_slow_clients):
             train_data = read_client_data(self.dataset, i, is_train=True)
@@ -137,9 +140,9 @@ class Server(object):
         self.uploaded_weights = []
         self.uploaded_models = []
         tot_samples = 0
+        print('==== time cost ====')
         for client in active_clients:
             cost_times = [] # lista de custo temporal
-            print('==== time cost ====')
             try:
                 client_time_cost = client.train_time_cost['total_cost'] / client.train_time_cost['num_rounds'] + \
                         client.send_time_cost['total_cost'] / client.send_time_cost['num_rounds']
@@ -149,12 +152,11 @@ class Server(object):
         
             except ZeroDivisionError:
                 client_time_cost = 0
-            print('==== ==== ==== ====')
 
             cost_times.sort()
             # utiliza o custo temporal do client mais para o threthold
             if self.time_threthold == self.args.time_threthold:
-                self.time_threthold = cost_times[0] * 1.2
+                self.time_threthold = cost_times[0] * 1.1
             
             if client_time_cost <= self.time_threthold:
                 tot_samples += client.train_samples
@@ -163,6 +165,9 @@ class Server(object):
                 self.uploaded_models.append(client.model)
         for i, w in enumerate(self.uploaded_weights):
             self.uploaded_weights[i] = w / tot_samples
+
+        print(f'time_threthold: {self.time_threthold}')
+        print('==== ==== ==== ====')
 
     def aggregate_parameters(self):
         assert (len(self.uploaded_models) > 0)
