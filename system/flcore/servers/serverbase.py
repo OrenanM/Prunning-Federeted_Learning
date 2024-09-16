@@ -79,7 +79,7 @@ class Server(object):
         self.eval_new_clients = False
         self.fine_tuning_epoch_new = args.fine_tuning_epoch_new
 
-        self.low_processing = args.low_processing # defines client with low processing
+        #self.low_processing = args.low_processing # defines client with low processing
         self.low_processing_rate = args.low_processing_rate # defines client with low processing rate
 
     def set_clients(self, clientObj):
@@ -146,6 +146,7 @@ class Server(object):
             try:
                 client_time_cost = client.train_time_cost['total_cost'] / client.train_time_cost['num_rounds'] + \
                         client.send_time_cost['total_cost'] / client.send_time_cost['num_rounds']
+                client_time_cost = client_time_cost / client.level_processing
                 cost_times.append(client_time_cost)
                 # exibe o custo de cada cliente 
                 print(f'client {client.id}: {client_time_cost}s')

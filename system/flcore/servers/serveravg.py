@@ -45,7 +45,7 @@ class FedAvg(Server):
         n_clients_low_processing = round(n_clients * self.low_processing_rate)
 
         indexes = list(range(n_clients))
-        indexes_low = np.random.choic(indexes, n_clients_low_processing)
+        indexes_low = np.random.choice(indexes, n_clients_low_processing)
 
         for index in indexes_low:
             client = self.clients[index]
