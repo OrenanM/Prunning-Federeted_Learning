@@ -85,6 +85,9 @@ class ALA:
         Returns:
             None.
         """
+        # start time inicalization
+        start_time_train = time.time()
+
         # randomly sample partial local training data
         rand_ratio = self.rand_percent / 100
         rand_num = int(rand_ratio*len(self.train_data))
@@ -172,8 +175,11 @@ class ALA:
 
         self.start_phase = False
 
+        
+        # tempo de inicialização do modelo 
+        client.send_time_cost['total_cost'] += (time.time() - start_time_train)
 
-        # send model #
+        # startup time sending the model
         start_time = time.time()
 
         # obtain initialized local model
@@ -181,4 +187,6 @@ class ALA:
             param.data = param_t.data.clone()
 
         client.send_time_cost['num_rounds'] += 1
+        # time only for sending the model
         client.send_time_cost['total_cost'] += 2 * (time.time() - start_time)
+        
