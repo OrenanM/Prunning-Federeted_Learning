@@ -81,6 +81,7 @@ class Server(object):
 
         #self.low_processing = args.low_processing # defines client with low processing
         self.low_processing_rate = args.low_processing_rate # defines client with low processing rate
+        self.currente_round = 0
 
     def set_clients(self, clientObj):
         for i, train_slow, send_slow in zip(range(self.num_clients), self.train_slow_clients, self.send_slow_clients):
@@ -170,8 +171,12 @@ class Server(object):
                 client_time_cost = 0
 
             cost_times.sort()
-            # utiliza o custo temporal do client mais para o threthold
-            if self.time_threthold == self.args.time_threthold:
+            # utiliza o custo temporal do client mais rapido para o threthold (rodada 0)
+            if self.currente_round == 0:
+                self.time_threthold = cost_times[0] * 1.1
+            
+            # utiliza o custo temporal do client mais rapido para o threthold (rodada 1 - FedALA)
+            if self.algorithm == "FedALA" and self.currente_round == 1:
                 self.time_threthold = cost_times[0] * 1.1
             
             if client_time_cost <= self.time_threthold:
