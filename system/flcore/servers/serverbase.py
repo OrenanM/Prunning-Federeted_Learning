@@ -141,9 +141,16 @@ class Server(object):
         self.uploaded_weights = []
         self.uploaded_models = []
         tot_samples = 0
+        # utiliza o custo temporal do client mais rapido para o threthold (rodada 0)
+        if self.currente_round == 0:
+            self.setting_time_threthold(active_clients)
+        
+        # utiliza o custo temporal do client mais rapido para o threthold (rodada 1 - FedALA)
+        if self.algorithm == "FedALA" and self.currente_round == 1:
+            self.setting_time_threthold(active_clients)
+            
         print('==== time cost ====')
         for client in active_clients:
-            cost_times = [] # lista de custo temporal
             try:
                 # tempo de treinamento
                 train_time = client.train_time_cost['total_cost'] / client.train_time_cost['num_rounds']
@@ -157,9 +164,6 @@ class Server(object):
                 #custo temporal
                 client_time_cost = train_time + send_time
 
-                # armazena os valores de custo temporal
-                cost_times.append(client_time_cost)
-
                 # exibe o custo de cada cliente 
                 if client.level_processing != 1:
                     print(f'client {client.id} (low processing): {client_time_cost}s')
@@ -169,15 +173,6 @@ class Server(object):
         
             except ZeroDivisionError:
                 client_time_cost = 0
-
-            cost_times.sort()
-            # utiliza o custo temporal do client mais rapido para o threthold (rodada 0)
-            if self.currente_round == 0:
-                self.time_threthold = cost_times[0] * 1.1
-            
-            # utiliza o custo temporal do client mais rapido para o threthold (rodada 1 - FedALA)
-            if self.algorithm == "FedALA" and self.currente_round == 1:
-                self.time_threthold = cost_times[0] * 1.1
             
             if client_time_cost <= self.time_threthold:
                 tot_samples += client.train_samples
@@ -189,6 +184,23 @@ class Server(object):
 
         print(f'time_threthold: {self.time_threthold}')
         print('==== ==== ==== ====')
+
+    def setting_time_threthold(self, active_clients):
+        """define o valor do threthold"""
+        cost_times = [] # lista de custo temporal
+        for client in active_clients:
+            train_time = client.train_time_cost['total_cost'] / client.train_time_cost['num_rounds']
+            # insere "atraso" ao cliente de baixo processamento 
+            train_time = train_time / client.level_processing       
+            # tempo de envio
+            send_time = client.send_time_cost['total_cost'] / client.send_time_cost['num_rounds']
+            #custo temporal
+            client_time_cost = train_time + send_time
+            # armazena os valores de custo temporal
+            cost_times.append(client_time_cost)
+        cost_times.sort()
+        # utiliza o custo temporal do client mais rapido para o threthold (rodada 0)
+        self.time_threthold = cost_times[0] * 1.1
 
     def aggregate_parameters(self):
         assert (len(self.uploaded_models) > 0)
