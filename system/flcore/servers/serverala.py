@@ -19,6 +19,7 @@ import time
 from flcore.clients.clientala import clientALA
 from flcore.servers.serverbase import Server
 from threading import Thread
+import numpy as np
 
 
 class FedALA(Server):
@@ -28,6 +29,7 @@ class FedALA(Server):
         # select slow clients
         self.set_slow_clients()
         self.set_clients(clientALA)
+        self.set_processing_clients()
 
         print(f"\nJoin ratio / total clients: {self.join_ratio} / {self.num_clients}")
         print("Finished creating server and clients.")
@@ -35,12 +37,30 @@ class FedALA(Server):
         # self.load_model()
         self.Budget = []
 
+    def set_processing_clients(self):
+        '''
+        define valores de nivel de processament
+        '''
+        n_clients = len(self.clients)
+        n_clients_low_processing = round(n_clients * self.low_processing_rate)
+
+        indexes = list(range(n_clients))
+        indexes_low = np.random.choice(indexes, n_clients_low_processing)
+
+        for index in indexes_low:
+            client = self.clients[index]
+            client.level_processing = 0.8
+            print(f'low processing: {client.id}')
 
     def train(self):
         for i in range(self.global_rounds+1):
             s_t = time.time()
             self.selected_clients = self.select_clients()
-            self.send_models()
+
+            if i == 0:
+                super().send_models()
+            else:
+                self.send_models()
 
             if i%self.eval_gap == 0:
                 print(f"\n-------------Round number: {i}-------------")

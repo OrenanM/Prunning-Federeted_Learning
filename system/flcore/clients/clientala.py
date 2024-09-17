@@ -70,4 +70,4 @@ class clientALA(Client):
         
 
     def local_initialization(self, received_global_model):
-        self.ALA.adaptive_local_aggregation(received_global_model, self.model)
+        self.ALA.adaptive_local_aggregation(received_global_model, self.model, self)

@@ -144,17 +144,27 @@ class Server(object):
         for client in active_clients:
             cost_times = [] # lista de custo temporal
             try:
-                client_time_cost = client.train_time_cost['total_cost'] / client.train_time_cost['num_rounds'] + \
-                        client.send_time_cost['total_cost'] / client.send_time_cost['num_rounds']
+                # tempo de treinamento
+                train_time = client.train_time_cost['total_cost'] / client.train_time_cost['num_rounds']
 
                 # insere "atraso" ao cliente de baixo processamento 
-                client_time_cost = client_time_cost / client.level_processing
+                train_time = train_time / client.level_processing
+                
+                # tempo de envio
+                send_time = client.send_time_cost['total_cost'] / client.send_time_cost['num_rounds']
+
+                #custo temporal
+                client_time_cost = train_time + send_time
 
                 # armazena os valores de custo temporal
                 cost_times.append(client_time_cost)
 
                 # exibe o custo de cada cliente 
-                print(f'client {client.id}: {client_time_cost}s')
+                if client.level_processing != 1:
+                    print(f'client {client.id} (low processing): {client_time_cost}s')
+                else:
+                    print(f'client {client.id}: {client_time_cost}s')
+                print(f'client {client.id} (send time): {send_time}s')
         
             except ZeroDivisionError:
                 client_time_cost = 0

@@ -22,6 +22,7 @@ import copy
 import random
 from torch.utils.data import DataLoader
 from typing import List, Tuple
+import time
 
 class ALA:
     def __init__(self,
@@ -71,7 +72,8 @@ class ALA:
 
     def adaptive_local_aggregation(self, 
                             global_model: nn.Module,
-                            local_model: nn.Module) -> None:
+                            local_model: nn.Module,
+                            client) -> None:
         """
         Generates the Dataloader for the randomly sampled local training data and 
         preserves the lower layers of the update. 
@@ -83,7 +85,6 @@ class ALA:
         Returns:
             None.
         """
-
         # randomly sample partial local training data
         rand_ratio = self.rand_percent / 100
         rand_num = int(rand_ratio*len(self.train_data))
@@ -171,6 +172,13 @@ class ALA:
 
         self.start_phase = False
 
+
+        # send model #
+        start_time = time.time()
+
         # obtain initialized local model
         for param, param_t in zip(params_p, params_tp):
             param.data = param_t.data.clone()
+
+        client.send_time_cost['num_rounds'] += 1
+        client.send_time_cost['total_cost'] += 2 * (time.time() - start_time)
