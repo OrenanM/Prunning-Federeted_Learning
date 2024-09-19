@@ -66,7 +66,7 @@ class clientALA(Client):
             self.learning_rate_scheduler.step()
 
         self.train_time_cost['num_rounds'] += 1
-        self.train_time_cost['total_cost'] += time.time() - start_time
+        self.train_time_cost['total_cost'] = time.time() - start_time
         
 
     def local_initialization(self, received_global_model):

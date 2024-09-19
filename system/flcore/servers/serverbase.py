@@ -81,7 +81,7 @@ class Server(object):
 
         #self.low_processing = args.low_processing # defines client with low processing
         self.low_processing_rate = args.low_processing_rate # defines client with low processing rate
-        self.currente_round = 0
+        self.current_round = 0
 
     def set_clients(self, clientObj):
         for i, train_slow, send_slow in zip(range(self.num_clients), self.train_slow_clients, self.send_slow_clients):
@@ -129,7 +129,7 @@ class Server(object):
             client.set_parameters(self.global_model)
 
             client.send_time_cost['num_rounds'] += 1
-            client.send_time_cost['total_cost'] += 2 * (time.time() - start_time)
+            client.send_time_cost['total_cost'] = 2 * (time.time() - start_time)
 
     def receive_models(self):
         assert (len(self.selected_clients) > 0)
@@ -142,24 +142,24 @@ class Server(object):
         self.uploaded_models = []
         tot_samples = 0
         # utiliza o custo temporal do client mais rapido para o threthold (rodada 0)
-        if self.currente_round == 0:
+        if self.current_round == 0:
             self.setting_time_threthold(active_clients)
         
         # utiliza o custo temporal do client mais rapido para o threthold (rodada 1 - FedALA)
-        if self.algorithm == "FedALA" and self.currente_round == 1:
+        if self.algorithm == "FedALA" and self.current_round == 1:
             self.setting_time_threthold(active_clients)
             
         print('==== time cost ====')
         for client in active_clients:
             try:
                 # tempo de treinamento
-                train_time = client.train_time_cost['total_cost'] / client.train_time_cost['num_rounds']
+                train_time = client.train_time_cost['total_cost']
 
                 # insere "atraso" ao cliente de baixo processamento 
                 train_time = train_time / client.level_processing
                 
                 # tempo de envio
-                send_time = client.send_time_cost['total_cost'] / client.send_time_cost['num_rounds']
+                send_time = client.send_time_cost['total_cost']
 
                 #custo temporal
                 client_time_cost = train_time + send_time
@@ -169,7 +169,8 @@ class Server(object):
                     print(f'client {client.id} (low processing): {client_time_cost}s')
                 else:
                     print(f'client {client.id}: {client_time_cost}s')
-                print(f'client {client.id} (send time): {send_time}s')
+                #print(f'client {client.id} (send time): {send_time}s')
+                #print(client.train_samples)
         
             except ZeroDivisionError:
                 client_time_cost = 0
@@ -189,11 +190,11 @@ class Server(object):
         """define o valor do threthold"""
         cost_times = [] # lista de custo temporal
         for client in active_clients:
-            train_time = client.train_time_cost['total_cost'] / client.train_time_cost['num_rounds']
+            train_time = client.train_time_cost['total_cost']
             # insere "atraso" ao cliente de baixo processamento 
             train_time = train_time / client.level_processing       
             # tempo de envio
-            send_time = client.send_time_cost['total_cost'] / client.send_time_cost['num_rounds']
+            send_time = client.send_time_cost['total_cost']
             #custo temporal
             client_time_cost = train_time + send_time
             # armazena os valores de custo temporal

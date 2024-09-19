@@ -1,26 +1,10 @@
 import torch
-from torch import nn
+import torch.nn as nn
 import torch.nn.utils.prune as prune
-import torch.nn.functional as F
-import numpy as np
 import copy
+import numpy as np
 
-def pruning_model_cnn(model, amount=0.5, n_in=3):
-    """
-    Executa a poda (pruning) de um modelo de rede neural convolucional (CNN) e reconstrói a 
-    arquitetura do modelo com base na porcentagem especificada de filtros/pesos a serem removidos.
-
-    Parâmetros:
-    - model: Instância do modelo CNN a ser podado.
-    - amount: Fração dos pesos a serem podados, representada como um valor entre 0 e 1 (ex: 0.5 
-    corresponde à remoção de 50% dos pesos).
-    - n_in: Número de canais de entrada da primeira camada convolucional.
-
-    Retorna:
-    - model: O modelo CNN podado e reconstruído.
-    - pruning_mask: Máscara de poda que indica quais pesos foram removidos.
-    """
-
+def prune_and_restructure(model, amout = 0.5, n_in= 3):
     model_copy = copy.deepcopy(model)
     layers = []
     indices_not_remove_weight = []
@@ -88,7 +72,7 @@ def pruning_model_cnn(model, amount=0.5, n_in=3):
             # filtra os pesos da camada
             if first_linear:
                 indices_not_remove_weight = np.array(indices_not_remove_weight)
-                indices_not_remove_weight = np.repeat(indices_not_remove_weight, 25)
+                indices_not_remove_weight = np.repeat(indices_not_remove_weight, 16)
                 first_linear = False
                 
                 n_in = sum(indices_not_remove_weight)
@@ -127,22 +111,7 @@ def pruning_model_cnn(model, amount=0.5, n_in=3):
         new_model = nn.Sequential(*layers)
     return new_model, masks
 
-def reconstruction_model_cnn(model, masks):
-    """
-    Reconstrói um modelo de rede neural convolucional (CNN) após a aplicação de poda (pruning), 
-    utilizando as máscaras de poda fornecidas para restaurar a arquitetura e preservar os pesos 
-    não podados.
-
-    Parâmetros:
-    - model: Instância do modelo CNN original que foi submetido à poda.
-    - masks: Máscaras de poda aplicadas ao modelo, onde cada máscara corresponde a uma camada, 
-    indicando os pesos que foram mantidos (1) ou removidos (0) durante a poda.
-
-    Retorna:
-    - model: O modelo CNN reconstruído com base nas máscaras de poda, contendo apenas os pesos 
-    preservados.
-    """
-
+def restore_to_original_size(model, masks):
     index_mask = 0 # indice atual da mascara
     layers = [] # armazena as layers ja reconstruidas
     first_layer = True
@@ -229,6 +198,5 @@ def reconstruction_model_cnn(model, masks):
         elif isinstance(module, (nn.ReLU, nn.MaxPool2d, nn.Flatten)):
             layers.append(module) # adiciona o modulo as layers
     
-    print(layers)
     model = nn.Sequential(*layers)
     return model

@@ -21,7 +21,6 @@ import numpy as np
 import time
 from flcore.clients.clientbase import Client
 
-
 class clientAVG(Client):
     def __init__(self, args, id, train_samples, test_samples, **kwargs):
         super().__init__(args, id, train_samples, test_samples, **kwargs)
@@ -58,4 +57,4 @@ class clientAVG(Client):
             self.learning_rate_scheduler.step()
 
         self.train_time_cost['num_rounds'] += 1
-        self.train_time_cost['total_cost'] += time.time() - start_time
+        self.train_time_cost['total_cost'] = time.time() - start_time

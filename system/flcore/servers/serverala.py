@@ -54,7 +54,7 @@ class FedALA(Server):
 
     def train(self):
         for i in range(self.global_rounds+1):
-            self.currente_round = i #round atual
+            self.current_round = i #round atual
             s_t = time.time()
             self.selected_clients = self.select_clients()
 

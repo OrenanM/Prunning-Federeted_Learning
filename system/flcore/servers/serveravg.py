@@ -20,6 +20,7 @@ from flcore.clients.clientavg import clientAVG
 from flcore.servers.serverbase import Server
 from threading import Thread
 import numpy as np
+from utils.prunning import prune_and_restructure
 
 
 class FedAvg(Server):
@@ -76,6 +77,7 @@ class FedAvg(Server):
             if self.dlg_eval and i%self.dlg_gap == 0:
                 self.call_dlg(i)
             self.aggregate_parameters()
+            self.global_model, mask = prune_and_restructure(self.global_model, amout=0.1)
 
             self.Budget.append(time.time() - s_t)
             print('-'*25, 'time cost', '-'*25, self.Budget[-1])

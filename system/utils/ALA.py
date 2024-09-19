@@ -188,5 +188,5 @@ class ALA:
 
         client.send_time_cost['num_rounds'] += 1
         # time only for sending the model
-        client.send_time_cost['total_cost'] += 2 * (time.time() - start_time)
+        client.send_time_cost['total_cost'] = 2 * (time.time() - start_time)
         
